@@ -1,39 +1,47 @@
-import React, { useState, useContext } from "react";
+/* eslint-disable react/prop-types */
+import React, { useState, useContext } from 'react'
 
-import Button from "../../shared/components/FormElements/Button";
-import Card from "../../shared/components/UIElements/Card";
-import Modal from "../../shared/components/UIElements/Modal";
-import Map from "../../shared/components/UIElements/Map";
-import { AuthContext } from "../../shared/context/auth-context";
-import "./PlaceItem.css";
+import Button from '../../shared/components/FormElements/Button'
+import Card from '../../shared/components/UIElements/Card'
+import Modal from '../../shared/components/UIElements/Modal'
+import Map from '../../shared/components/UIElements/Map'
+import ErrorModal from '../../shared/components/UIElements/ErrorModal'
+import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner'
+import { AuthContext } from '../../shared/context/auth-context'
+import {useHttpClient} from '../../shared/hooks/http-hook'
+import './PlaceItem.css'
 
 const PlaceItem = (props) => {
-  const auth = useContext(AuthContext);
-
-  const [showMap, setShowMap] = useState(false);
-  const [showConfirmModal, setShowConformModal] = useState(false);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const auth = useContext(AuthContext)
+  const [showMap, setShowMap] = useState(false)
+  const [showConfirmModal, setShowConformModal] = useState(false)
 
   const showDeleteWarningHandler = () => {
-    setShowConformModal(true);
-  };
+    setShowConformModal(true)
+  }
 
   const hideDeleteWarningHandler = () => {
-    setShowConformModal(false);
-  };
+    setShowConformModal(false)
+  }
 
-  const confirmDeleteWarningHandler = () => {
-    setShowConformModal(false);
-    console.log("DELETING...");
-  };
+  const confirmDeleteWarningHandler = async () => {
+    setShowConformModal(false)
+    try {
+      await sendRequest(`http://localhost:5000/api/places/${props.id}`, 'DELETE', null, {Authorization: 'Bearer ' + auth.token });
+      props.onDelete(props.id);
+    } catch (error) { }
+  }
 
   const openMapHandler = () => {
-    setShowMap(true);
-  };
+    setShowMap(true)
+  }
   const closeMapHandler = () => {
-    setShowMap(false);
-  };
+    setShowMap(false)
+  }
   return (
     <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
       <Modal
         show={showMap}
         onCancel={closeMapHandler}
@@ -54,7 +62,7 @@ const PlaceItem = (props) => {
         footer={
           <React.Fragment>
             <Button inverse onClick={hideDeleteWarningHandler}>
-              CANCEL{" "}
+              CANCEL{' '}
             </Button>
             <Button danger onClick={confirmDeleteWarningHandler}>
               DELETE
@@ -69,8 +77,9 @@ const PlaceItem = (props) => {
       </Modal>
       <li className="place-item">
         <Card className="place-item__content">
+          {isLoading && <LoadingSpinner asOverlay />}
           <div className="place-item__image">
-            <img src={props.image} alt={props.title} />
+            <img src={`http://localhost:5000/${props.image}`} alt={props.title} />
           </div>
           <div className="place-item__info">
             <h2>{props.title}</h2>
@@ -81,10 +90,10 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            {auth.isLoggedIn && (
+            {auth.userId === props.creatorId && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
-            {auth.isLoggedIn && (
+            {auth.userId === props.creatorId && (
               <Button danger onClick={showDeleteWarningHandler}>
                 DELETE
               </Button>
@@ -93,7 +102,7 @@ const PlaceItem = (props) => {
         </Card>
       </li>
     </React.Fragment>
-  );
-};
+  )
+}
 
-export default PlaceItem;
+export default PlaceItem

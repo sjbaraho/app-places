@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import Backdrop from "../UIElements/Backdrop";
-import MainHeader from "./MainHeader";
-import NavLinks from "./NavLinks";
-import SideDrawer from "./SideDrawer";
-import "./MainNavigation.css";
+import Backdrop from '../UIElements/Backdrop';
+import MainHeader from './MainHeader';
+import NavLinks from './NavLinks';
+import SideDrawer from './SideDrawer';
+import './MainNavigation.css';
 
-const MainNavigation = () => {
+function MainNavigation() {
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
 
   const openDrawerHandler = () => {
@@ -19,7 +19,7 @@ const MainNavigation = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       {drawerIsOpen && <Backdrop onClick={closeDrawerHandler} />}
       <SideDrawer show={drawerIsOpen} onClick={closeDrawerHandler}>
         <nav className="main-navigation__drawer-nav">
@@ -43,8 +43,8 @@ const MainNavigation = () => {
           <NavLinks />
         </nav>
       </MainHeader>
-    </React.Fragment>
+    </>
   );
-};
+}
 
 export default MainNavigation;
